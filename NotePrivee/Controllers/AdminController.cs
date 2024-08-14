@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -34,11 +34,11 @@ namespace NotePrivee.Controllers
             if (ModelState.IsValid)
             {
                 user.Password = AdminService.Hash(user.Password);
-                if (_context.Users.Where(u => u.Username == user.Username && u.Password == user.Password).Count() == 1)
+                if (_context.Users.Count(u => u.Username == user.Username && u.Password == user.Password) == 1)
                 {
-                    var userClaims = new List<Claim>()
+                    var userClaims = new List<Claim>
                     {
-                        new Claim(ClaimTypes.Name, user.Username),
+                        new Claim(ClaimTypes.Name, user.Username)
                     };
 
                     var grandmaIdentity = new ClaimsIdentity(userClaims, "User Identity");
@@ -55,12 +55,12 @@ namespace NotePrivee.Controllers
         [Authorize]
         public async Task<IActionResult> Index()
         {
-            List<Note> Notes = await _context.Notes.ToListAsync();
-            List<User> Users = await _context.Users.ToListAsync();
+            var notes = await _context.Notes.ToListAsync();
+            var users = await _context.Users.ToListAsync();
 
-            ViewData["Chart"] = AdminService.GenerateChartNotes(12, Notes);
-            ViewData["Notes"] = Notes;
-            ViewData["Users"] = Users;
+            ViewData["Chart"] = AdminService.GenerateChartNotes(12, notes);
+            ViewData["Notes"] = notes;
+            ViewData["Users"] = users;
             return View();
         }
 
@@ -132,8 +132,8 @@ namespace NotePrivee.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Clear(int id)
         {
-            List<Note> notes = await _context.Notes.ToListAsync();
-            foreach (Note note in notes)
+            var notes = await _context.Notes.ToListAsync();
+            foreach (var note in notes)
             {
                 _context.Notes.Remove(note);
             }

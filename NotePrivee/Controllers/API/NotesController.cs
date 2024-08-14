@@ -47,15 +47,18 @@ namespace NotePrivee.Controllers.API
                 _context.Notes.Remove(note); // suppression de la note
             }
 
-            Note decipheredNote = new Note();
+            Note decipheredNote = new Note
+            {
+                Contenu = note.Contenu,
+                DateCreation = note.DateCreation,
+                DateExpiration = note.DateExpiration,
+                NombreVue = note.NombreVue
+            };
 
             try
             {
                 decipheredNote.Contenu = SimpleAES.AES256.Decrypt(note.Contenu, key); // déchiffrement
                 decipheredNote.Contenu = sanitizer.Sanitize(decipheredNote.Contenu);
-                decipheredNote.DateCreation = note.DateCreation;
-                decipheredNote.DateExpiration = note.DateExpiration;
-                decipheredNote.NombreVue = note.NombreVue;
             }
             catch (CryptographicException ex)
             {
@@ -81,7 +84,11 @@ namespace NotePrivee.Controllers.API
             }
             if (data.Contenu == null) return BadRequest(data);
             string key = GenerateRandomKey();
-            Dictionary<String, String> result = new Dictionary<String, String>();
+            Dictionary<String, String> result = new()
+            {
+                { "id", note.Id.ToString() },
+                { "key", key }
+            };
             Note note = new Note
             {
                 Contenu = SimpleAES.AES256.Encrypt(data.Contenu, key),
@@ -92,8 +99,6 @@ namespace NotePrivee.Controllers.API
             
             _context.Add(note);
             _context.SaveChanges();
-            result.Add("id", note.Id.ToString());
-            result.Add("key", key);
             return Ok(result);
         }
 
