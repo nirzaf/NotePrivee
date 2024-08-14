@@ -34,14 +34,14 @@ namespace NotePrivee.Test
             output = testOutputHelper;
             dbContext = server.Host.Services.GetService(typeof(notepriveeContext)) as notepriveeContext;
             NoteKey = Guid.NewGuid().ToString().Replace("-", string.Empty).Substring(0, 30);
-            NoteContent = "note pour test int�gration";
+            NoteContent = "note pour test intégration";
             Note nNotes = new Note { Contenu = SimpleAES.AES256.Encrypt(NoteContent, NoteKey) };
             dbContext.Notes.Add(nNotes);
             dbContext.SaveChanges();
             NoteId = nNotes.Id;
         }
 
-        [Fact(DisplayName = "Cr�ation d'une note")]
+        [Fact(DisplayName = "Création d'une note")]
         public async Task TestCreateNote()
         {
             Dictionary<String, String> jsonResult;
@@ -62,7 +62,7 @@ namespace NotePrivee.Test
             output.WriteLine("key: " + jsonResult["key"]);
         }
 
-        [Fact(DisplayName = "R�cup�ration d'une note avec la mauvaise cl�")]
+        [Fact(DisplayName = "Récupération d'une note avec la mauvaise clé")]
         public async Task TestGetNoteByIdWrongKey()
         {
             var response = await client.GetAsync("/api/Notes?id=" + NoteId + "&key=123456");
@@ -70,7 +70,7 @@ namespace NotePrivee.Test
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        [Fact(DisplayName = "R�cup�ration d'une note avec un ID �rron�")]
+        [Fact(DisplayName = "Récupération d'une note avec un ID érroné")]
         public async Task TestGetNoteByWrongId()
         {
             var response = await client.GetAsync("/api/Notes?id=123456&key=123456");
@@ -78,7 +78,7 @@ namespace NotePrivee.Test
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-        [Fact(DisplayName = "R�cup�ration d'une note")]
+        [Fact(DisplayName = "Récupération d'une note")]
         public async Task TestGetNoteByIdKey()
         {
             Dictionary<String, String> jsonResult;
